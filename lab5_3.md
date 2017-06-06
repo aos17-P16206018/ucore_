@@ -1,0 +1,10 @@
+fork最终调⽤到之前实验实现的do_fork函数，从⽽完成⼦进程的创建，资源的分配；
+exec最终调⽤到do_execve函数，do_execve函数对于⾮内核进程⾸先要切换到内核空间，然后
+exit_mmap、put_pgdir和mm_destroy来回收当前进程在⽤户空间的资源，完成后再通过load_icode
+函数将新程序加载到⽤户空间，分配资源，设置各指针等，完成进程的改变。
+wait最终调⽤到do_wait函数，do_wait函数通过⼀个循环，不断的查找⼦进程中状态为
+PROC_ZOMBIE的，若找到则结束循环并清理⼦进程剩余的⽆法由其⾃⾝清理的资源，每⼀轮循环
+中若未找到则会先尝试调⽤schedule让出CPU。
+exit最终调⽤到do_exit函数，do_exit对于⾮内核进程也是先切换到内核空间，然后和do_execve⼀
+样回收当前进程各种资源，接着设置进程状态为PROC_ZOMBIE，最后通过唤醒⽗进程来清理该进
+程其余未能回收的资源，并且对于其⼦进程需要转给initproc。
